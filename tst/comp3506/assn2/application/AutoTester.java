@@ -1,6 +1,10 @@
 package comp3506.assn2.application;
 
 import java.io.FileNotFoundException;
+import java.util.List;
+
+import comp3506.assn2.utils.Pair;
+import comp3506.assn2.utils.Triple;
 
 
 /**
@@ -32,6 +36,74 @@ public class AutoTester implements Search {
 			throws FileNotFoundException, IllegalArgumentException {
 		// TODO Implement constructor to load the data from these files and
 		// TODO setup your data structures for the application.
+		// TODO load the entire textfile into a string seperated by space. Then load this string into trie which allows fast retrieval
 	}
+
+	@Override
+	public int wordCount(String word) throws IllegalArgumentException {
+		// TODO Auto-generated method stub
+		return Search.super.wordCount(word);
+	}
+
+	@Override
+	public List<Pair<Integer, Integer>> phraseOccurrence(String phrase) throws IllegalArgumentException {
+		// TODO Auto-generated method stub
+		return Search.super.phraseOccurrence(phrase);
+	}
+
+	@Override
+	public List<Pair<Integer, Integer>> prefixOccurrence(String prefix) throws IllegalArgumentException {
+		// TODO Auto-generated method stub
+		return Search.super.prefixOccurrence(prefix);
+	}
+
+	@Override
+	public List<Integer> wordsOnLine(String[] words) throws IllegalArgumentException {
+		// TODO Auto-generated method stub
+		return Search.super.wordsOnLine(words);
+	}
+
+	@Override
+	public List<Integer> someWordsOnLine(String[] words) throws IllegalArgumentException {
+		// TODO Auto-generated method stub
+		return Search.super.someWordsOnLine(words);
+	}
+
+	@Override
+	public List<Integer> wordsNotOnLine(String[] wordsRequired, String[] wordsExcluded)
+			throws IllegalArgumentException {
+		// TODO Auto-generated method stub
+		return Search.super.wordsNotOnLine(wordsRequired, wordsExcluded);
+	}
+
+	@Override
+	public List<Triple<Integer, Integer, String>> simpleAndSearch(String[] titles, String[] words)
+			throws IllegalArgumentException {
+		// TODO Auto-generated method stub
+		return Search.super.simpleAndSearch(titles, words);
+	}
+
+	@Override
+	public List<Triple<Integer, Integer, String>> simpleOrSearch(String[] titles, String[] words)
+			throws IllegalArgumentException {
+		// TODO Auto-generated method stub
+		return Search.super.simpleOrSearch(titles, words);
+	}
+
+	@Override
+	public List<Triple<Integer, Integer, String>> simpleNotSearch(String[] titles, String[] wordsRequired,
+			String[] wordsExcluded) throws IllegalArgumentException {
+		// TODO Auto-generated method stub
+		return Search.super.simpleNotSearch(titles, wordsRequired, wordsExcluded);
+	}
+
+	@Override
+	public List<Triple<Integer, Integer, String>> compoundAndOrSearch(String[] titles, String[] wordsRequired,
+			String[] orWords) throws IllegalArgumentException {
+		// TODO Auto-generated method stub
+		return Search.super.compoundAndOrSearch(titles, wordsRequired, orWords);
+	}
+	
+	
 
 }
