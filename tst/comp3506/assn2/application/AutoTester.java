@@ -1,11 +1,13 @@
 package comp3506.assn2.application;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.List;
 
 import comp3506.assn2.utils.Pair;
 import comp3506.assn2.utils.Triple;
-
+import java.lang.Object;
+import java.nio.file.*;
 
 /**
  * Hook class used by automated testing tool.
@@ -37,6 +39,11 @@ public class AutoTester implements Search {
 		// TODO Implement constructor to load the data from these files and
 		// TODO setup your data structures for the application.
 		// TODO load the entire textfile into a string seperated by space. Then load this string into trie which allows fast retrieval
+		try {
+			String content = new String(Files.readAllBytes(Paths.get(documentFileName)));
+		} catch (IOException e) {
+			throw new FileNotFoundException();
+		}
 	}
 
 	@Override
