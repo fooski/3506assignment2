@@ -50,6 +50,15 @@ public class AutoTester implements Search {
 		}
 	}
 
+	/**
+	 * Determines the number of times the word appears in the document.
+	 * 
+	 * Run time: O(N), N = n*m (n = size of text file and m = size of word string)
+	 * 
+	 * @param word The word to be counted in the document.
+	 * @return The number of occurrences of the word in the document.
+	 * @throws IllegalArgumentException if word is null or an empty String.
+	 */
 	@Override
 	public int wordCount(String word) throws IllegalArgumentException {
 		int count = 0;
@@ -60,22 +69,13 @@ public class AutoTester implements Search {
 		}
 		occurrence = new OccurrenceTable(word);
 		while (i < content.length() - 1) {
-			if (content.charAt(i) == word.charAt(j)) { //if matches
+			if (Character.toLowerCase(content.charAt(i)) == Character.toLowerCase(word.charAt(j))) { //if matches
 				if (j == 0) {
-					System.out.print(count);
-					System.out.print(content.charAt(i));
-					System.out.print(content.charAt(i+1));
-					System.out.print(content.charAt(i+2));
-					System.out.print(content.charAt(i+3));
-					System.out.print(content.charAt(i+4));
-					System.out.print(content.charAt(i+5));
-					System.out.print(content.charAt(i+6));
-					System.out.print(content.charAt(i+7));
-					System.out.println(content.charAt(i+8));
-					count++;
+					if (content.charAt(i - 1) == ' ' && content.charAt(i + length) == ' ' ) { //end of word seperated by space
+						count++;
+					} 
 					i = i + 2 * length - 1;
 					j = length - 1;
-					//complete character jump
 				} else {
 					i--;
 					j--;
