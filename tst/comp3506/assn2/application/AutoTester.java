@@ -4,10 +4,14 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 
+import javax.swing.text.AbstractDocument.Content;
+
 import comp3506.assn2.utils.Pair;
 import comp3506.assn2.utils.Triple;
 import java.lang.Object;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
+import java.math.*;
 
 /**
  * Hook class used by automated testing tool.
@@ -18,6 +22,8 @@ import java.nio.file.*;
  * @author 
  */
 public class AutoTester implements Search {
+	private String content;
+	private OccurrenceTable occurrence;
 
 	/**
 	 * Create an object that performs search operations on a document.
@@ -36,11 +42,9 @@ public class AutoTester implements Search {
 	 */
 	public AutoTester(String documentFileName, String indexFileName, String stopWordsFileName) 
 			throws FileNotFoundException, IllegalArgumentException {
-		// TODO Implement constructor to load the data from these files and
-		// TODO setup your data structures for the application.
-		// TODO load the entire textfile into a string seperated by space. Then load this string into trie which allows fast retrieval
 		try {
-			String content = new String(Files.readAllBytes(Paths.get(documentFileName)));
+			byte[] encoded = Files.readAllBytes(Paths.get(documentFileName));
+			content = new String(encoded, StandardCharsets.UTF_8);
 		} catch (IOException e) {
 			throw new FileNotFoundException();
 		}
@@ -48,8 +52,43 @@ public class AutoTester implements Search {
 
 	@Override
 	public int wordCount(String word) throws IllegalArgumentException {
-		// TODO Auto-generated method stub
-		return Search.super.wordCount(word);
+		int count = 0;
+		int length = word.length();
+		int i = length - 1, j = length - 1;
+		if (length == 0 || word.equals(null)) {
+			throw new IllegalArgumentException();
+		}
+		occurrence = new OccurrenceTable(word);
+		while (i < content.length() - 1) {
+			if (content.charAt(i) == word.charAt(j)) { //if matches
+				if (j == 0) {
+					System.out.print(count);
+					System.out.print(content.charAt(i));
+					System.out.print(content.charAt(i+1));
+					System.out.print(content.charAt(i+2));
+					System.out.print(content.charAt(i+3));
+					System.out.print(content.charAt(i+4));
+					System.out.print(content.charAt(i+5));
+					System.out.print(content.charAt(i+6));
+					System.out.print(content.charAt(i+7));
+					System.out.println(content.charAt(i+8));
+					count++;
+					i = i + 2 * length - 1;
+					j = length - 1;
+					//complete character jump
+				} else {
+					i--;
+					j--;
+				}
+			} else {
+				char character = content.charAt(i);
+				//System.out.println(i);
+				int lastOccurrence = occurrence.getOccurence(character);
+				i = i + length - Math.min(j, 1 + lastOccurrence);
+				j = length - 1;
+			}
+		}
+		return count;
 	}
 
 	@Override
@@ -110,7 +149,4 @@ public class AutoTester implements Search {
 		// TODO Auto-generated method stub
 		return Search.super.compoundAndOrSearch(titles, wordsRequired, orWords);
 	}
-	
-	
-
 }
