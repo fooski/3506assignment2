@@ -1,11 +1,17 @@
 package comp3506.assn2.application;
 
+import java.io.BufferedReader;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.text.AbstractDocument.Content;
 
+import comp3506.assn2.application.ArrayMap.MapIterator;
+import comp3506.assn2.application.ArrayMap.MapNode;
 import comp3506.assn2.utils.Pair;
 import comp3506.assn2.utils.Triple;
 import java.lang.Object;
@@ -23,7 +29,8 @@ import java.math.*;
  */
 public class AutoTester implements Search {
 	private String content;
-	private OccurrenceTable occurrence;
+	private ArrayMap stringTable;
+	private int numberOfLines = 0;
 
 	/**
 	 * Create an object that performs search operations on a document.
@@ -48,6 +55,16 @@ public class AutoTester implements Search {
 		} catch (IOException e) {
 			throw new FileNotFoundException();
 		}
+		//try (BufferedReader reader = new BufferedReader(new FileReader(documentFileName))) {
+		//	while (reader.readLine() != null) {
+		//		numberOfLines++;
+		//	}
+		//} catch (FileNotFoundException e) {
+		//	e.printStackTrace();
+		//} catch (IOException e) {
+		//	e.printStackTrace();
+		//}
+		stringTable = new ArrayMap(documentFileName, 5000000);
 	}
 
 	/**
@@ -63,6 +80,7 @@ public class AutoTester implements Search {
 	public int wordCount(String word) throws IllegalArgumentException {
 		int count = 0;
 		int length = word.length();
+		OccurrenceTable occurrence;
 		int i = length - 1, j = length - 1;
 		if (length == 0 || word.equals(null)) {
 			throw new IllegalArgumentException();
@@ -82,7 +100,6 @@ public class AutoTester implements Search {
 				}
 			} else {
 				char character = content.charAt(i);
-				//System.out.println(i);
 				int lastOccurrence = occurrence.getOccurence(character);
 				i = i + length - Math.min(j, 1 + lastOccurrence);
 				j = length - 1;
@@ -90,11 +107,53 @@ public class AutoTester implements Search {
 		}
 		return count;
 	}
-
+	
+	
+	/**
+	 * Finds all occurrences of the phrase in the document.
+	 * A phrase may be a single word or a sequence of words.
+	 * 
+	 * Run time: O
+	 * 
+	 * @param phrase The phrase to be found in the document.
+	 * @return List of pairs, where each pair indicates the line and column number of each occurrence of the phrase.
+	 *         Returns an empty list if the phrase is not found in the document.
+	 * @throws IllegalArgumentException if phrase is null or an empty String.
+	 */
 	@Override
 	public List<Pair<Integer, Integer>> phraseOccurrence(String phrase) throws IllegalArgumentException {
-		// TODO Auto-generated method stub
-		return Search.super.phraseOccurrence(phrase);
+		List<Pair<Integer, Integer>> result = new LinkedList<Pair<Integer, Integer>>();
+		if (phrase.isEmpty() || phrase.equals(null)) {
+			throw new IllegalArgumentException();
+		}
+		MapIterator iterator = stringTable.getIterator();
+		while (iterator.hasNext()) {
+			int i = phrase.length() - 1, j = phrase.length() - 1;
+			OccurrenceTable occurrence = new OccurrenceTable(phrase);
+			MapNode lineNode = iterator.next();
+			String lineString = lineNode.getLineContent();
+			if (phrase.length() < lineString.length()) { //only process if the phrase is smaller than this line
+				while (i < lineString.length() - 1) {
+					if (Character.toLowerCase(lineString.charAt(i)) == Character.toLowerCase(phrase.charAt(j))) { //if matches
+						if (j == 0) {
+							Pair<Integer, Integer> pair = new Pair<Integer, Integer>(lineNode.getLineNumber(), i);
+							result.add(pair);
+							i = i + 2 * phrase.length() - 1;
+							j = phrase.length() - 1;
+						} else {
+							i--;
+							j--;
+						}
+					} else {
+						char character = lineString.charAt(i);
+						int lastOccurrence = occurrence.getOccurence(character);
+						i = i + phrase.length() - Math.min(j, 1 + lastOccurrence);
+						j = phrase.length() - 1;
+					}
+				}
+			} 
+		}
+		return result;
 	}
 
 	@Override
