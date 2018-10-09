@@ -1,16 +1,17 @@
 package comp3506.assn2.application;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 
 
 public class ArrayMap {
 	private MapNode[] stringTable;
-	int size = 0; //number of lines / elements in array
+	int size = 1; //number of lines / elements in array
 	
 	public ArrayMap(String file, int lines) {
-		stringTable = new MapNode[lines];
+		stringTable = new MapNode[lines + 1];
 		
-		try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
 			String line;
 			while ((line = reader.readLine()) != null) {
 				stringTable[size] = new MapNode(size, line);
@@ -55,7 +56,7 @@ public class ArrayMap {
 	}
 	
 	class MapIterator implements Iterator<MapNode> {
-		int next = 0;
+		int next = 1;
 
 		@Override
 		public boolean hasNext() {
@@ -68,7 +69,7 @@ public class ArrayMap {
 
 		@Override
 		public MapNode next() {
-			return stringTable[next];
+			return stringTable[next++];
 		}
 		
 	}

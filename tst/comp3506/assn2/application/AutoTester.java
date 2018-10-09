@@ -1,9 +1,11 @@
 package comp3506.assn2.application;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -55,16 +57,16 @@ public class AutoTester implements Search {
 		} catch (IOException e) {
 			throw new FileNotFoundException();
 		}
-		//try (BufferedReader reader = new BufferedReader(new FileReader(documentFileName))) {
-		//	while (reader.readLine() != null) {
-		//		numberOfLines++;
-		//	}
-		//} catch (FileNotFoundException e) {
-		//	e.printStackTrace();
-		//} catch (IOException e) {
-		//	e.printStackTrace();
-		//}
-		stringTable = new ArrayMap(documentFileName, 5000000);
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(documentFileName), StandardCharsets.UTF_8))) {
+			while (reader.readLine() != null) {
+				numberOfLines++;
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		stringTable = new ArrayMap(documentFileName, numberOfLines);
 	}
 
 	/**
@@ -131,13 +133,16 @@ public class AutoTester implements Search {
 			int i = phrase.length() - 1, j = phrase.length() - 1;
 			OccurrenceTable occurrence = new OccurrenceTable(phrase);
 			MapNode lineNode = iterator.next();
+			int lineNumber = lineNode.getLineNumber();
 			String lineString = lineNode.getLineContent();
 			if (phrase.length() < lineString.length()) { //only process if the phrase is smaller than this line
 				while (i < lineString.length() - 1) {
 					if (Character.toLowerCase(lineString.charAt(i)) == Character.toLowerCase(phrase.charAt(j))) { //if matches
 						if (j == 0) {
-							Pair<Integer, Integer> pair = new Pair<Integer, Integer>(lineNode.getLineNumber(), i);
-							result.add(pair);
+							if (lineString.charAt(i - 1) == ' ' && lineString.charAt(i + phrase.length()) == ' ' ) { //end of word seperated by space
+								Pair<Integer, Integer> pair = new Pair<Integer, Integer>(lineNumber, i + 1);
+								result.add(pair);
+							} 
 							i = i + 2 * phrase.length() - 1;
 							j = phrase.length() - 1;
 						} else {
