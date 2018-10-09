@@ -10,7 +10,7 @@ import java.lang.Character;
  *
  */
 public class OccurrenceTable {
-	private String alphabet = "abcdefghijklmnopqrstuvwxyz";
+	private String alphabet = "abcdefghijklmnopqrstuvwxyz ";
 	private int[] accessTable = new int[alphabet.length()];
 	
 	
@@ -44,7 +44,9 @@ public class OccurrenceTable {
 	 * @return the index of the last occurrence for character. -1 if character never occurs.
 	 */
 	public int getOccurence(char character) {
-		if (Character.isAlphabetic(character)) {
+		if (character == ' ') {
+			return accessTable[alphabet.length() - 1];
+		} else if (Character.isAlphabetic(character)) {
 			int index = alphabet.indexOf(Character.toLowerCase(character));
 			return accessTable[index];
 		} else {

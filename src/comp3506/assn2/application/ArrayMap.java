@@ -4,6 +4,15 @@ import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 
 
+
+/**
+ * A simple map data structure which is used to store the textfile line by line. 
+ * 
+ * Memory Usage: O(n*M) n being number of lines in the textfile, M is the length of each lines
+ * 
+ * @author Leon Zheng
+ *
+ */
 public class ArrayMap {
 	private MapNode[] stringTable;
 	int size = 1; //number of lines / elements in array
@@ -25,6 +34,12 @@ public class ArrayMap {
 		
 	}
 	
+	
+	/**
+	 * Returns the corresponding node in the string table.
+	 * @param lineNumber
+	 * @return MapNode which corresponds 
+	 */
 	public MapNode getNode(int lineNumber) {
 		return stringTable[lineNumber];
 	}

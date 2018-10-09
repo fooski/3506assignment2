@@ -91,7 +91,7 @@ public class AutoTester implements Search {
 		while (i < content.length() - 1) {
 			if (Character.toLowerCase(content.charAt(i)) == Character.toLowerCase(word.charAt(j))) { //if matches
 				if (j == 0) {
-					if (content.charAt(i - 1) == ' ' && content.charAt(i + length) == ' ' ) { //end of word seperated by space
+					if (!Character.isAlphabetic(content.charAt(i - 1)) && !Character.isAlphabetic(content.charAt(i + length))) { //end of word seperated by space
 						count++;
 					} 
 					i = i + 2 * length - 1;
@@ -115,7 +115,7 @@ public class AutoTester implements Search {
 	 * Finds all occurrences of the phrase in the document.
 	 * A phrase may be a single word or a sequence of words.
 	 * 
-	 * Run time: O
+	 * Run time: O(N), N = n*m (n = size of text file and m = size of word string)
 	 * 
 	 * @param phrase The phrase to be found in the document.
 	 * @return List of pairs, where each pair indicates the line and column number of each occurrence of the phrase.
@@ -139,7 +139,7 @@ public class AutoTester implements Search {
 				while (i < lineString.length() - 1) {
 					if (Character.toLowerCase(lineString.charAt(i)) == Character.toLowerCase(phrase.charAt(j))) { //if matches
 						if (j == 0) {
-							if (lineString.charAt(i - 1) == ' ' && lineString.charAt(i + phrase.length()) == ' ' ) { //end of word seperated by space
+							if (!Character.isAlphabetic(lineString.charAt(i - 1)) && !Character.isAlphabetic(lineString.charAt(i + phrase.length()))) { //end of word seperated by space
 								Pair<Integer, Integer> pair = new Pair<Integer, Integer>(lineNumber, i + 1);
 								result.add(pair);
 							} 
@@ -161,10 +161,55 @@ public class AutoTester implements Search {
 		return result;
 	}
 
+	/**
+	 * Finds all occurrences of the prefix in the document.
+	 * A prefix is the start of a word. It can also be the complete word.
+	 * For example, "obscure" would be a prefix for "obscure", "obscured", "obscures" and "obscurely".
+	 * 
+	 * Run time: O(
+	 * 
+	 * @param prefix The prefix of a word that is to be found in the document.
+	 * @return List of pairs, where each pair indicates the line and column number of each occurrence of the prefix.
+	 *         Returns an empty list if the prefix is not found in the document.
+	 * @throws IllegalArgumentException if prefix is null or an empty String.
+	 */
 	@Override
 	public List<Pair<Integer, Integer>> prefixOccurrence(String prefix) throws IllegalArgumentException {
-		// TODO Auto-generated method stub
-		return Search.super.prefixOccurrence(prefix);
+		List<Pair<Integer, Integer>> result = new LinkedList<Pair<Integer, Integer>>();
+		if (prefix.isEmpty() || prefix.equals(null)) {
+			throw new IllegalArgumentException();
+		}
+		MapIterator iterator = stringTable.getIterator();
+		while (iterator.hasNext()) {
+			int i = prefix.length() - 1, j = prefix.length() - 1;
+			OccurrenceTable occurrence = new OccurrenceTable(prefix);
+			MapNode lineNode = iterator.next();
+			int lineNumber = lineNode.getLineNumber();
+			String lineString = lineNode.getLineContent();
+			if (prefix.length() < lineString.length()) { //only process if the phrase is smaller than this line
+				while (i < lineString.length() - 1) {
+					if (Character.toLowerCase(lineString.charAt(i)) == Character.toLowerCase(prefix.charAt(j))) { //if matches
+						if (j == 0) {
+							if (!Character.isAlphabetic(lineString.charAt(i - 1))) {
+								Pair<Integer, Integer> pair = new Pair<Integer, Integer>(lineNumber, i + 1);
+								result.add(pair);
+							} 
+							i = i + 2 * prefix.length() - 1;
+							j = prefix.length() - 1;
+						} else {
+							i--;
+							j--;
+						}
+					} else {
+						char character = lineString.charAt(i);
+						int lastOccurrence = occurrence.getOccurence(character);
+						i = i + prefix.length() - Math.min(j, 1 + lastOccurrence);
+						j = prefix.length() - 1;
+					}
+				}
+			} 
+		}
+		return result;
 	}
 
 	@Override
