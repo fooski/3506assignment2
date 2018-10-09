@@ -30,7 +30,6 @@ import java.math.*;
  * @author 
  */
 public class AutoTester implements Search {
-	private String content;
 	private ArrayMap stringTable;
 	private int numberOfLines = 0;
 
@@ -51,12 +50,6 @@ public class AutoTester implements Search {
 	 */
 	public AutoTester(String documentFileName, String indexFileName, String stopWordsFileName) 
 			throws FileNotFoundException, IllegalArgumentException {
-		try {
-			byte[] encoded = Files.readAllBytes(Paths.get(documentFileName));
-			content = new String(encoded, StandardCharsets.UTF_8);
-		} catch (IOException e) {
-			throw new FileNotFoundException();
-		}
 		try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(documentFileName), StandardCharsets.UTF_8))) {
 			while (reader.readLine() != null) {
 				numberOfLines++;
@@ -68,7 +61,7 @@ public class AutoTester implements Search {
 		}
 		stringTable = new ArrayMap(documentFileName, numberOfLines);
 	}
-
+	
 	/**
 	 * Determines the number of times the word appears in the document.
 	 * 
@@ -81,30 +74,15 @@ public class AutoTester implements Search {
 	@Override
 	public int wordCount(String word) throws IllegalArgumentException {
 		int count = 0;
-		int length = word.length();
-		OccurrenceTable occurrence;
-		int i = length - 1, j = length - 1;
-		if (length == 0 || word.equals(null)) {
+		if (word.length() == 0 || word.equals(null)) {
 			throw new IllegalArgumentException();
 		}
-		occurrence = new OccurrenceTable(word);
-		while (i < content.length() - 1) {
-			if (Character.toLowerCase(content.charAt(i)) == Character.toLowerCase(word.charAt(j))) { //if matches
-				if (j == 0) {
-					if (!Character.isAlphabetic(content.charAt(i - 1)) && !Character.isAlphabetic(content.charAt(i + length))) { //end of word seperated by space
-						count++;
-					} 
-					i = i + 2 * length - 1;
-					j = length - 1;
-				} else {
-					i--;
-					j--;
-				}
-			} else {
-				char character = content.charAt(i);
-				int lastOccurrence = occurrence.getOccurence(character);
-				i = i + length - Math.min(j, 1 + lastOccurrence);
-				j = length - 1;
+		MapIterator iterator = stringTable.getIterator();
+		while (iterator.hasNext()) {
+			MapNode lineNode = iterator.next();
+			String lineString = lineNode.getLineContent();
+			if (boyerMoore(lineString, word) != -1) {
+				count++;
 			}
 		}
 		return count;
@@ -284,10 +262,13 @@ public class AutoTester implements Search {
 		while (i < text.length() - 1) {
 			if (Character.toLowerCase(text.charAt(i)) == Character.toLowerCase(pattern.charAt(j))) { //if matches
 				if (j == 0) {
-					if (i > 0 && !Character.isAlphabetic(text.charAt(i - 1)) && !Character.isAlphabetic(text.charAt(i + pattern.length()))) { //end of word seperated by space
+					if (i == text.length() - pattern.length() - 1 && !Character.isAlphabetic(text.charAt(i - 1))) {//lastword of line
 						return i + 1;
-					} else if (!Character.isAlphabetic(text.charAt(i + pattern.length()))) {
-						return i;
+					} else if (i > 0 && !Character.isAlphabetic(text.charAt(i - 1)) && !Character.isAlphabetic(text.charAt(i + pattern.length()))) { //end of word seperated by space
+						return i + 1;
+						//TODO need to handle when the matching word is at the very end of the line
+					} else if (i == 0 && !Character.isAlphabetic(text.charAt(i + pattern.length()))) {
+						return i + 1;
 					}
 					i = i + 2 * pattern.length() - 1;
 					j = pattern.length() - 1;

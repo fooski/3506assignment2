@@ -16,7 +16,7 @@ public class WordcountTester {
 	public static void main(String[] args) {
 		try {
 			searchApplication = new AutoTester("files\\shakespeare.txt", "files\\shakespeare-index.txt", "files\\stop-words.txt");
-			wordcount = searchApplication.wordCount("obscure");
+			wordcount = searchApplication.wordCount("grave");
 			System.out.println(wordcount); 
 		} catch (FileNotFoundException | IllegalArgumentException e) {
 			System.out.println("Opening files failed!");
