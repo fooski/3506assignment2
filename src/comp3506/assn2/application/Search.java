@@ -81,7 +81,7 @@ public interface Search {
 	 */
 	default List<Integer> someWordsOnLine(String[] words) throws IllegalArgumentException {
 		throw new UnsupportedOperationException("Search.someWordsOnLine() Not Implemented.");
-	}
+	} 
 	
 	/**
 	 * Searches the document for lines that contain all the words in the 'wordsRequired' parameter

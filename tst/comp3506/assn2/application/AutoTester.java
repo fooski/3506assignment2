@@ -204,6 +204,9 @@ public class AutoTester implements Search {
 			String lineString = lineNode.getLineContent();
 			for (int i = 0; i < size; i++) {
 				String currentWord = words[i];
+				if (currentWord.isEmpty() || currentWord.equals(null)) {
+					throw new IllegalArgumentException();
+				}
 				if (boyerMoore(lineString, currentWord) != -1) {
 					if (i == size - 1) { //if reach last word
 						result.add(lineNumber);
@@ -243,6 +246,9 @@ public class AutoTester implements Search {
 			String lineString = lineNode.getLineContent();
 			for (int i = 0; i < size; i++) {
 				String currentWord = words[i];
+				if (currentWord.isEmpty() || currentWord.equals(null)) {
+					throw new IllegalArgumentException();
+				}
 				if (boyerMoore(lineString, currentWord) != -1) {
 					result.add(lineNumber);
 					break; // if one word is found do not need to go any further
@@ -253,12 +259,48 @@ public class AutoTester implements Search {
 	}
 	
 	
-	
+	/**
+	 * Searches the document for lines that contain all the words in the 'wordsRequired' parameter
+	 * and none of the words in the 'wordsExcluded' parameter.
+	 * Implements simple "not" logic when searching for the words.
+	 * The words do not need to be contiguous on the line.
+	 * 
+	 * @param wordsRequired Array of words to find on a single line in the document.
+	 * @param wordsExcluded Array of words that must not be on the same line as 'wordsRequired'.
+	 * @return List of line numbers on which all the wordsRequired appear 
+	 *         and none of the wordsExcluded appear in the document.
+	 *         Returns an empty list if no lines meet the search criteria.
+	 * @throws IllegalArgumentException if either of wordsRequired or wordsExcluded are null or an empty array 
+	 *                                  or any of the Strings in either of the arrays are null or empty.
+	 */
 	@Override
 	public List<Integer> wordsNotOnLine(String[] wordsRequired, String[] wordsExcluded)
 			throws IllegalArgumentException {
-		// TODO Auto-generated method stub
-		return Search.super.wordsNotOnLine(wordsRequired, wordsExcluded);
+		List<Integer> result = new ArrayList<Integer>();
+		if (wordsRequired.length == 0 || wordsExcluded.length == 0) {
+			throw new IllegalArgumentException();
+		}
+		MapIterator iterator = stringTable.getIterator();
+		outerloop:
+		while (iterator.hasNext()) { //iterate through the lines
+			MapNode lineNode = iterator.next();
+			int lineNumber = lineNode.getLineNumber();
+			String lineString = lineNode.getLineContent();
+			for (int i = 0; i < wordsRequired.length; i++) {
+				String requiredWord = wordsRequired[i];
+				if (boyerMoore(lineString, requiredWord) == -1) {
+					continue outerloop;
+				}
+			}
+			for (int j = 0; j < wordsExcluded.length; j++) {
+				String excludedWord =  wordsExcluded[j];
+				if (boyerMoore(lineString, excludedWord) != -1) {
+					continue outerloop;
+				}
+			}
+			result.add(lineNumber);
+		}
+		return result;
 	}
 
 	@Override

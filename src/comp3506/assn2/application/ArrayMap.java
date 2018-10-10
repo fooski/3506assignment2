@@ -17,6 +17,12 @@ public class ArrayMap {
 	private MapNode[] stringTable;
 	int size = 1; //number of lines / elements in array
 	
+	/**
+	 * Constructor of the class ArrayMap
+	 * 
+	 * @param file
+	 * @param lines
+	 */
 	public ArrayMap(String file, int lines) {
 		stringTable = new MapNode[lines + 1];
 		
@@ -37,6 +43,9 @@ public class ArrayMap {
 	
 	/**
 	 * Returns the corresponding node in the string table.
+	 * 
+	 * Run time: O(1)
+	 * 
 	 * @param lineNumber
 	 * @return MapNode which corresponds 
 	 */
@@ -44,10 +53,21 @@ public class ArrayMap {
 		return stringTable[lineNumber];
 	}
 	
+	/**
+	 * Returns the size of the current data structure.
+	 * 
+	 * Run time: O(1)
+	 * 
+	 * @return size
+	 */
 	public int getSize() {
 		return size;
 	}
 	
+	/**
+	 * Returns an instance of the class Iterator, which allows iteration to be done on the data structure.
+	 * @return new MapIterator
+	 */
 	public MapIterator getIterator() {
 		return new MapIterator();
 	}
@@ -70,6 +90,11 @@ public class ArrayMap {
 		
 	}
 	
+	
+	/**
+	 * @author Leon
+	 *
+	 */
 	class MapIterator implements Iterator<MapNode> {
 		int next = 1;
 

@@ -13,17 +13,16 @@ public class WordsNotOnLineTester {
 	private static Search searchApplication;
 	
 	public static void main(String[] args) {
-		String [] searchTerm = {"boggler", "carlot"};
+		String [] requiredWords = {"riper"};
+		String [] excludedWords = {"decease"};
 		try {
 			searchApplication = new AutoTester("files\\shakespeare.txt", "files\\shakespeare-index.txt", "files\\stop-words.txt");
-			List<Integer> result = searchApplication.someWordsOnLine(searchTerm);
+			List<Integer> result = searchApplication.wordsNotOnLine(requiredWords, excludedWords);
 			Iterator<Integer> iterator = result.iterator();
 			while (iterator.hasNext()) {
 				Integer value = iterator.next();
 				System.out.println(value);
 			}
-			 
-			 
 		} catch (FileNotFoundException | IllegalArgumentException e) {
 			System.out.println("Opening files failed!");
 			e.printStackTrace();
