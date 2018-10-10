@@ -49,7 +49,7 @@ public class ArrayMap {
 	 * @param lineNumber
 	 * @return MapNode which corresponds 
 	 */
-	public MapNode getNode(int lineNumber) {
+	public MapNode getLine(int lineNumber) {
 		return stringTable[lineNumber];
 	}
 	
@@ -96,11 +96,11 @@ public class ArrayMap {
 	 *
 	 */
 	class MapIterator implements Iterator<MapNode> {
-		int next = 1;
+		private int next = 1;
 
 		@Override
 		public boolean hasNext() {
-			if (next < size - 1) {
+			if (next <= size - 1) {
 				return true;
 			} else {
 				return false;
