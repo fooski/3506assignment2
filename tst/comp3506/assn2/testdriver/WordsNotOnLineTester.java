@@ -9,18 +9,18 @@ import comp3506.assn2.application.AutoTester;
 import comp3506.assn2.application.Search;
 import comp3506.assn2.utils.Pair;
 
-public class PrefixTester {
+public class WordsNotOnLineTester {
 	private static Search searchApplication;
 	
 	public static void main(String[] args) {
+		String [] searchTerm = {"boggler", "carlot"};
 		try {
 			searchApplication = new AutoTester("files\\shakespeare.txt", "files\\shakespeare-index.txt", "files\\stop-words.txt");
-			List<Pair<Integer, Integer>> result = searchApplication.prefixOccurrence("obscure");
-			Iterator<Pair<Integer, Integer>> iterator = result.iterator();
-			int i = 1;
+			List<Integer> result = searchApplication.someWordsOnLine(searchTerm);
+			Iterator<Integer> iterator = result.iterator();
 			while (iterator.hasNext()) {
-				Pair<Integer, Integer> value = iterator.next();
-				System.out.printf("%d. line %d Col %d\n", i++, value.getLeftValue(), value.getRightValue());
+				Integer value = iterator.next();
+				System.out.println(value);
 			}
 			 
 			 

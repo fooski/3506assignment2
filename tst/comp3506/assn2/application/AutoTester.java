@@ -111,6 +111,10 @@ public class AutoTester implements Search {
 			MapNode lineNode = iterator.next();
 			int lineNumber = lineNode.getLineNumber();
 			String lineString = lineNode.getLineContent();
+			if (lineNumber == 3839 || lineNumber == 4910) {
+				System.out.println(lineString);
+				System.out.printf("character is %c\n", lineString.charAt(lineString.length() - phrase.length()));
+			}
 			int column = boyerMoore(lineString, phrase);
 			if (column != -1) {
 				Pair<Integer, Integer> pair = new Pair<Integer, Integer>(lineNumber, column);
@@ -201,7 +205,7 @@ public class AutoTester implements Search {
 			for (int i = 0; i < size; i++) {
 				String currentWord = words[i];
 				if (boyerMoore(lineString, currentWord) != -1) {
-					if (i == size - 1) {
+					if (i == size - 1) { //if reach last word
 						result.add(lineNumber);
 					}
 				} else {
@@ -210,16 +214,46 @@ public class AutoTester implements Search {
 			}
 		}
 		return result;
-		
-			
 	}
-
+	
+	/**
+	 * Searches the document for lines that contain any of the words in the 'words' parameter.
+	 * Implements simple "or" logic when searching for the words.
+	 * The words do not need to be contiguous on the line.
+	 * 
+	 * Run time: O(
+	 * 
+	 * @param words Array of words to find on a single line in the document.
+	 * @return List of line numbers on which any of the words appear in the document.
+	 *         Returns an empty list if none of the words appear in any line in the document.
+	 * @throws IllegalArgumentException if words is null or an empty array 
+	 *                                  or any of the Strings in the array are null or empty.
+	 */
 	@Override
 	public List<Integer> someWordsOnLine(String[] words) throws IllegalArgumentException {
-		// TODO Auto-generated method stub
-		return Search.super.someWordsOnLine(words);
+		List<Integer> result = new ArrayList<Integer>();
+		int size = words.length;
+		if (size == 0) {
+			throw new IllegalArgumentException();
+		}
+		MapIterator iterator = stringTable.getIterator();
+		while (iterator.hasNext()) {
+			MapNode lineNode = iterator.next();
+			int lineNumber = lineNode.getLineNumber();
+			String lineString = lineNode.getLineContent();
+			for (int i = 0; i < size; i++) {
+				String currentWord = words[i];
+				if (boyerMoore(lineString, currentWord) != -1) {
+					result.add(lineNumber);
+					break; // if one word is found do not need to go any further
+				}
+			}
+		}
+		return result;
 	}
-
+	
+	
+	
 	@Override
 	public List<Integer> wordsNotOnLine(String[] wordsRequired, String[] wordsExcluded)
 			throws IllegalArgumentException {
@@ -262,7 +296,7 @@ public class AutoTester implements Search {
 		while (i < text.length() - 1) {
 			if (Character.toLowerCase(text.charAt(i)) == Character.toLowerCase(pattern.charAt(j))) { //if matches
 				if (j == 0) {
-					if (i == text.length() - pattern.length() - 1 && !Character.isAlphabetic(text.charAt(i - 1))) {//lastword of line
+					if (i == text.length() - pattern.length() && !Character.isAlphabetic(text.charAt(i - 1))) {//lastword of line
 						return i + 1;
 					} else if (i > 0 && !Character.isAlphabetic(text.charAt(i - 1)) && !Character.isAlphabetic(text.charAt(i + pattern.length()))) { //end of word seperated by space
 						return i + 1;
