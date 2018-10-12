@@ -42,15 +42,15 @@ public class ArrayMap {
 	
 	
 	/**
-	 * Returns the corresponding node in the string table.
+	 * Returns the line with the corresponding number
 	 * 
 	 * Run time: O(1)
 	 * 
 	 * @param lineNumber
 	 * @return MapNode which corresponds 
 	 */
-	public MapNode getLine(int lineNumber) {
-		return stringTable[lineNumber];
+	public String getLine(int lineNumber) {
+		return stringTable[lineNumber].getLineContent();
 	}
 	
 	/**
@@ -97,6 +97,7 @@ public class ArrayMap {
 	 */
 	private class MapIterator implements Iterator<MapNode> {
 		private int next = 1;
+		
 
 		@Override
 		public boolean hasNext() {

@@ -140,7 +140,7 @@ public class AutoTester implements Search {
 	 */
 	@Override
 	public List<Pair<Integer, Integer>> prefixOccurrence(String prefix) throws IllegalArgumentException {
-		List<Pair<Integer, Integer>> result = new LinkedList<Pair<Integer, Integer>>();
+		List<Pair<Integer, Integer>> result = new ArrayList<Pair<Integer, Integer>>();
 		if (prefix.isEmpty() || prefix.equals(null)) {
 			throw new IllegalArgumentException();
 		}
@@ -311,6 +311,8 @@ public class AutoTester implements Search {
 	 * Implements simple "and" logic when searching for the words.
 	 * The words do not need to be on the same lines.
 	 * 
+	 * Run time: O(
+	 * 
 	 * @param titles Array of titles of the sections to search within, 
 	 *               the entire document is searched if titles is null or an empty array.
 	 * @param words Array of words to find within a defined section in the document.
@@ -319,13 +321,46 @@ public class AutoTester implements Search {
 	 *         Returns an empty list if the words are not found in the indicated sections of the document, 
 	 *         or all the indicated sections are not part of the document.
 	 * @throws IllegalArgumentException if words is null or an empty array 
-	 *                                  or any of the Strings in either of the arrays are null or empty.
+	 *                                  or any of the Strings in either of the arrays are null or empty. 
 	 */
 	@Override
 	public List<Triple<Integer, Integer, String>> simpleAndSearch(String[] titles, String[] words)
 			throws IllegalArgumentException {
-		// TODO Auto-generated method stub
-		return Search.super.simpleAndSearch(titles, words);
+		List<Triple<Integer, Integer, String>> result = new ArrayList<Triple<Integer, Integer, String>>();
+		if (words.length == 0) {
+			throw new IllegalArgumentException();
+		}
+		if (titles.length == 0 || titles == null) {
+			
+		} else {
+			outerloop:
+			for (int i = 0; i < titles.length; i++) { //for each section
+				List<Triple<Integer, Integer, String>> thisSectionResult = new ArrayList<Triple<Integer, Integer, String>>();
+				Pair<Integer, Integer> sectionSpan = sectionTable.getSection(titles[i]);
+				if (sectionSpan.getLeftValue() == -1) {
+					continue; //section not in the document
+				}
+				int start = sectionSpan.getLeftValue();
+				int end = sectionSpan.getRightValue();
+				for (int j = 0; j < words.length; j++) {// for each word
+					List<Triple<Integer, Integer, String>> thisWordResult = new ArrayList<Triple<Integer, Integer, String>>();
+					for (int k = start; k <= end; k++) { //for each line
+						String lineString = lineTable.getLine(k);
+						int column = boyerMoore(lineString, words[j]);
+						if (column != -1) {
+							thisWordResult.add(new Triple<Integer, Integer, String>(k, column, words[j]));
+						}
+					}
+					if (thisWordResult.isEmpty()) { //this word is not found in this section
+						continue outerloop;
+					} else {
+						thisSectionResult.addAll(thisWordResult);
+					}
+				}
+				result.addAll(thisSectionResult);
+			}
+		}
+		return result;
 	}
 
 	@Override
@@ -351,9 +386,10 @@ public class AutoTester implements Search {
 	
 	public void printSection() {
 		Iterator<Triple<String, Integer, Integer>> sectionIterator = sectionTable.getIterator();
+		int size = 1;
 		while (sectionIterator.hasNext()) {
 			Triple<String, Integer, Integer> section = sectionIterator.next();
-			System.out.printf("Section: %s, start: %d, finish %d\n", section.getLeftValue(), section.getCentreValue(), section.getRightValue());
+			System.out.printf("Section%d: %s, start: %d, finish %d\n", size++, section.getLeftValue(), section.getCentreValue(), section.getRightValue());
 		}
 	}
 	
