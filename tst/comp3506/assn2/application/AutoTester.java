@@ -113,10 +113,6 @@ public class AutoTester implements Search {
 			MapNode lineNode = iterator.next();
 			int lineNumber = lineNode.getLineNumber();
 			String lineString = lineNode.getLineContent();
-			if (lineNumber == 3839 || lineNumber == 4910) {
-				System.out.println(lineString);
-				System.out.printf("character is %c\n", lineString.charAt(lineString.length() - phrase.length()));
-			}
 			int column = boyerMoore(lineString, phrase);
 			if (column != -1) {
 				Pair<Integer, Integer> pair = new Pair<Integer, Integer>(lineNumber, column);
@@ -311,7 +307,7 @@ public class AutoTester implements Search {
 	 * Implements simple "and" logic when searching for the words.
 	 * The words do not need to be on the same lines.
 	 * 
-	 * Run time: O(
+	 * Run time: O(N)
 	 * 
 	 * @param titles Array of titles of the sections to search within, 
 	 *               the entire document is searched if titles is null or an empty array.
@@ -331,7 +327,7 @@ public class AutoTester implements Search {
 			throw new IllegalArgumentException();
 		}
 		if (titles.length == 0 || titles == null) {
-			
+			//TODO need to search the entire document
 		} else {
 			outerloop:
 			for (int i = 0; i < titles.length; i++) { //for each section
