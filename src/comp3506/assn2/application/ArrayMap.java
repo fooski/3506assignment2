@@ -95,16 +95,13 @@ public class ArrayMap {
 	 * @author Leon
 	 *
 	 */
-	class MapIterator implements Iterator<MapNode> {
+	private class MapIterator implements Iterator<MapNode> {
 		private int next = 1;
 
 		@Override
 		public boolean hasNext() {
-			if (next <= size - 1) {
-				return true;
-			} else {
-				return false;
-			}
+			return (next <= size - 1);
+			
 		}
 
 		@Override

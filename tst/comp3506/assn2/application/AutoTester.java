@@ -3,23 +3,17 @@ package comp3506.assn2.application;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-
-import javax.swing.text.AbstractDocument.Content;
-
-import comp3506.assn2.application.ArrayMap.MapIterator;
 import comp3506.assn2.application.ArrayMap.MapNode;
 import comp3506.assn2.utils.Pair;
 import comp3506.assn2.utils.Triple;
-import java.lang.Object;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
-import java.math.*;
 
 /**
  * Hook class used by automated testing tool.
@@ -30,8 +24,13 @@ import java.math.*;
  * @author 
  */
 public class AutoTester implements Search {
-	private ArrayMap stringTable;
+	private ArrayMap lineTable;
+	private SectionMap sectionTable;
 	private int numberOfLines = 0;
+	//TODO 
+	//1. implement stop words
+	//2. search results need to ignore punctuation
+	//3. need to fix edge case detection for Boyer-Moore
 
 	/**
 	 * Create an object that performs search operations on a document.
@@ -50,16 +49,19 @@ public class AutoTester implements Search {
 	 */
 	public AutoTester(String documentFileName, String indexFileName, String stopWordsFileName) 
 			throws FileNotFoundException, IllegalArgumentException {
-		try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(documentFileName), StandardCharsets.UTF_8))) {
-			while (reader.readLine() != null) {
+		try (BufferedReader documentReader = new BufferedReader(new InputStreamReader(new FileInputStream(documentFileName), StandardCharsets.UTF_8))) {
+			while (documentReader.readLine() != null) {
 				numberOfLines++;
 			}
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			throw new FileNotFoundException(documentFileName);
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new FileNotFoundException(documentFileName);
 		}
-		stringTable = new ArrayMap(documentFileName, numberOfLines);
+		//Load sections
+		loadIndexFile(indexFileName);
+		//load stop words
+		lineTable = new ArrayMap(documentFileName, numberOfLines);
 	}
 	
 	/**
@@ -77,7 +79,7 @@ public class AutoTester implements Search {
 		if (word.length() == 0 || word.equals(null)) {
 			throw new IllegalArgumentException();
 		}
-		MapIterator iterator = stringTable.getIterator();
+		Iterator<MapNode> iterator = lineTable.getIterator();
 		while (iterator.hasNext()) {
 			MapNode lineNode = iterator.next();
 			String lineString = lineNode.getLineContent();
@@ -106,7 +108,7 @@ public class AutoTester implements Search {
 		if (phrase.isEmpty() || phrase.equals(null)) {
 			throw new IllegalArgumentException();
 		}
-		MapIterator iterator = stringTable.getIterator();
+		Iterator<MapNode> iterator = lineTable.getIterator();
 		while (iterator.hasNext()) {
 			MapNode lineNode = iterator.next();
 			int lineNumber = lineNode.getLineNumber();
@@ -142,7 +144,7 @@ public class AutoTester implements Search {
 		if (prefix.isEmpty() || prefix.equals(null)) {
 			throw new IllegalArgumentException();
 		}
-		MapIterator iterator = stringTable.getIterator();
+		Iterator<MapNode> iterator = lineTable.getIterator();
 		while (iterator.hasNext()) {
 			int i = prefix.length() - 1, j = prefix.length() - 1;
 			OccurrenceTable occurrence = new OccurrenceTable(prefix);
@@ -197,7 +199,7 @@ public class AutoTester implements Search {
 		if (size == 0) {
 			throw new IllegalArgumentException();
 		}
-		MapIterator iterator = stringTable.getIterator();
+		Iterator<MapNode> iterator = lineTable.getIterator();
 		while (iterator.hasNext()) {
 			MapNode lineNode = iterator.next();
 			int lineNumber = lineNode.getLineNumber();
@@ -239,7 +241,8 @@ public class AutoTester implements Search {
 		if (size == 0) {
 			throw new IllegalArgumentException();
 		}
-		MapIterator iterator = stringTable.getIterator();
+		Iterator<MapNode> iterator = lineTable.getIterator();
+		
 		while (iterator.hasNext()) {
 			MapNode lineNode = iterator.next();
 			int lineNumber = lineNode.getLineNumber();
@@ -280,7 +283,7 @@ public class AutoTester implements Search {
 		if (wordsRequired.length == 0 || wordsExcluded.length == 0) {
 			throw new IllegalArgumentException();
 		}
-		MapIterator iterator = stringTable.getIterator();
+		Iterator<MapNode> iterator = lineTable.getIterator();
 		outerloop:
 		while (iterator.hasNext()) { //iterate through the lines
 			MapNode lineNode = iterator.next();
@@ -302,7 +305,22 @@ public class AutoTester implements Search {
 		}
 		return result;
 	}
-
+	
+	/**
+	 * Searches the document for sections that contain all the words in the 'words' parameter.
+	 * Implements simple "and" logic when searching for the words.
+	 * The words do not need to be on the same lines.
+	 * 
+	 * @param titles Array of titles of the sections to search within, 
+	 *               the entire document is searched if titles is null or an empty array.
+	 * @param words Array of words to find within a defined section in the document.
+	 * @return List of triples, where each triple indicates the line and column number and word found,
+	 *         for each occurrence of one of the words.
+	 *         Returns an empty list if the words are not found in the indicated sections of the document, 
+	 *         or all the indicated sections are not part of the document.
+	 * @throws IllegalArgumentException if words is null or an empty array 
+	 *                                  or any of the Strings in either of the arrays are null or empty.
+	 */
 	@Override
 	public List<Triple<Integer, Integer, String>> simpleAndSearch(String[] titles, String[] words)
 			throws IllegalArgumentException {
@@ -329,6 +347,14 @@ public class AutoTester implements Search {
 			String[] orWords) throws IllegalArgumentException {
 		// TODO Auto-generated method stub
 		return Search.super.compoundAndOrSearch(titles, wordsRequired, orWords);
+	}
+	
+	public void printSection() {
+		Iterator<Triple<String, Integer, Integer>> sectionIterator = sectionTable.getIterator();
+		while (sectionIterator.hasNext()) {
+			Triple<String, Integer, Integer> section = sectionIterator.next();
+			System.out.printf("Section: %s, start: %d, finish %d\n", section.getLeftValue(), section.getCentreValue(), section.getRightValue());
+		}
 	}
 	
 	private int boyerMoore(String text, String pattern) {
@@ -360,5 +386,39 @@ public class AutoTester implements Search {
 			}
 		}
 		return -1;
+	}
+	
+	private void loadIndexFile(String indexFileName) throws FileNotFoundException, IllegalArgumentException{
+		int numberOfSections = 0;
+		try {
+			numberOfSections = (int) Files.lines(Paths.get(indexFileName),StandardCharsets.UTF_8).count();
+		} catch (IOException e1) {
+			throw new FileNotFoundException(indexFileName);
+		}
+		sectionTable = new SectionMap(numberOfSections);
+		String section = "", sectionName = "";
+		String[] sectionLine;
+		int start = 0, end;
+		try (BufferedReader indexReader = new BufferedReader(new InputStreamReader(new FileInputStream(indexFileName), StandardCharsets.UTF_8))) {
+			section = indexReader.readLine();
+			sectionLine = section.split(",");
+			sectionName = sectionLine[0];
+			start = Integer.parseInt(sectionLine[1]);
+			while ((section = indexReader.readLine()) != null) {
+				//second line
+				sectionLine = section.split(",");
+				end = Integer.parseInt(sectionLine[1]) - 1;
+				sectionTable.addSection(sectionName, start, end);
+				//parse next section
+				sectionName = sectionLine[0];
+				start = Integer.parseInt(sectionLine[1]);
+			}
+			end = numberOfLines;
+			sectionTable.addSection(sectionName, start, end); //add the last section
+		} catch (FileNotFoundException e) {
+			throw new FileNotFoundException();
+		} catch (IOException e) {
+			throw new FileNotFoundException();
+		}
 	}
 }
